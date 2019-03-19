@@ -21,6 +21,32 @@ app.get("/", (req, res) => {
     res.sendFile(`${__dirname}/index.html`); 
 }); 
 
+app.get("/api/group-chat", (req, res) => { 
+    let sql = "SELECT * FROM messages"; 
+    let messages = []; 
+    let query = db.query(sql, (err, result) => { 
+        if (err) throw err; 
+        // console.log(result); 
+        result.forEach(row => {
+            messages.push({nickname: row.author, content: row.content});  
+        }); 
+        console.log(messages); 
+        res.send(JSON.stringify(messages)); 
+    }); 
+    /* 
+    res.send(JSON.stringify([
+        {
+            nickname: "one", content: "message one" 
+        }, 
+        { 
+            nickname: "two", content: "message two", 
+        },
+        { 
+            nickname: "three", content: "message three", 
+        }
+    ]));
+    */ 
+}); 
 
 io.on('connection', socket => {
     socket.on('chat message', msg => {
