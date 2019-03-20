@@ -10,6 +10,7 @@
         <input id="nickname" placeholder="nickname" /> 
         <input id="message-content" autocomplete="off" /><button>Send</button>
     </form>
+    <p id="who-is-typing"></p>
     <script src="/socket.io/socket.io.js"></script>
     <script>
     window.onload = () => {
@@ -21,11 +22,26 @@
             }); 
         })); 
 
+        document.querySelector("form").addEventListener("keyup", e => { 
+            socket.emit("user is typing", document.querySelector('#nickname').value); 
+        }); 
+
+        socket.on("user is typing", nickname => { 
+            if (nickname != document.querySelector('#nickname').value) { 
+                document.querySelector("#who-is-typing").innerText = `${nickname} is typing...`; 
+                window.setTimeout(() => document.querySelector("#who-is-typing").innerText = "", 3000); 
+            } 
+        }); 
+
         document.querySelector("form").addEventListener("submit", e => {
             e.preventDefault(); 
-            socket.emit('nickname', document.querySelector('#nickname').value);
-            socket.emit('chat message', {nickname: document.querySelector('#nickname').value, content: document.querySelector('#message-content').value });
-            document.querySelector('#message-content').value = '';
+            if (document.querySelector('#nickname').value != "") { 
+                socket.emit('nickname', document.querySelector('#nickname').value);
+                socket.emit('chat message', {nickname: document.querySelector('#nickname').value, content: document.querySelector('#message-content').value });
+                document.querySelector('#message-content').value = '';
+            } else { 
+                alert("You must have a nickname before you can send messages"); 
+            }
         });
         socket.on("chat message", message => {
             // instead create the element dynamically before appending it to the DOM here 
