@@ -10,6 +10,8 @@ const db = mysql.createConnection({
     database: "chatback"  
 }); 
 
+let usersOnline = []; 
+
 db.connect(err => { 
     if (err) { 
         console.log(err); 
@@ -25,7 +27,7 @@ app.get("/api/group-chat", (req, res) => {
     let sql = "SELECT * FROM messages"; 
     let messages = []; 
     let query = db.query(sql, (err, result) => { 
-        if (err) throw err; 
+        if (err) console.log(err);  // throw err; 
         // console.log(result); 
         result.forEach(row => {
             messages.push({nickname: row.author, content: row.content});  
@@ -47,6 +49,8 @@ io.on('connection', socket => {
     });
     socket.on("nickname", nickname => { 
         io.emit("nickname", nickname);
+        usersOnline.push(nickname); 
+        io.emit("user online", usersOnline); 
     });
     socket.on("user is typing", nickname => { 
         io.emit("user is typing", nickname); 

@@ -5,6 +5,7 @@
   </head>
   <body>
     <div id="nickname-container"></div>
+    <div id="who-is-online"></div>
     <ul id="messages"></ul>
     <form action="">
         <input id="nickname" placeholder="nickname" /> 
@@ -23,7 +24,7 @@
         })); 
 
         document.querySelector("form").addEventListener("keyup", e => { 
-            socket.emit("user is typing", document.querySelector('#nickname').value); 
+            socket.emit("user is typing", document.querySelector('#nickname').value);
         }); 
 
         socket.on("user is typing", nickname => { 
@@ -31,6 +32,14 @@
                 document.querySelector("#who-is-typing").innerText = `${nickname} is typing...`; 
                 window.setTimeout(() => document.querySelector("#who-is-typing").innerText = "", 3000); 
             } 
+        }); 
+
+        socket.on("user online", userNicknames => { 
+            console.log(userNicknames); 
+            document.querySelector("#who-is-online").innerHTML = ""; 
+            userNicknames.forEach(user => { 
+                document.querySelector("#who-is-online").innerHTML += `<a href="#">${user}</a>`;
+            }); 
         }); 
 
         document.querySelector("form").addEventListener("submit", e => {
