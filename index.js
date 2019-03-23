@@ -44,7 +44,6 @@ io.on('connection', socket => {
         let sql = `INSERT INTO messages VALUES ('${msg.nickname}', '${msg.content}')`;  
         let query = db.query(sql, msg, (err, result) => { 
             if (err) throw err; 
-            console.log(result); 
         }); 
     });
     socket.on("nickname", nickname => { 
@@ -54,6 +53,13 @@ io.on('connection', socket => {
     });
     socket.on("user is typing", nickname => { 
         io.emit("user is typing", nickname); 
+    }); 
+
+    socket.on("user disconnected", userNickname => { 
+        // remove userNickname from usersOnline array 
+        // sconsole.log(userNickname); 
+        usersOnline = usersOnline.filter(user => user != userNickname); 
+        io.emit("user online", usersOnline); 
     }); 
 });
 

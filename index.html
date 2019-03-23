@@ -38,7 +38,7 @@
             console.log(userNicknames); 
             document.querySelector("#who-is-online").innerHTML = ""; 
             userNicknames.forEach(user => { 
-                document.querySelector("#who-is-online").innerHTML += `<a href="#">${user}</a>`;
+                document.querySelector("#who-is-online").innerHTML += `<div><a href="#">${user}</a></div>`;
             }); 
         }); 
 
@@ -59,7 +59,11 @@
         socket.on("nickname", nickname => {
             document.querySelector("#nickname-container").innerText = nickname;  
         }); 
-    } 
+
+        window.addEventListener('beforeunload', () => {
+            socket.emit("user disconnected", document.querySelector('#nickname').value)
+            }, false); 
+        }
     </script>
     </body>
 </html>
