@@ -4,10 +4,22 @@
     <title>Chatback</title>
   </head>
   <body>
+    <form method="POST" action="/signup"> 
+        <label>Signup</label>
+        <input type="text" name="username-signup" /> 
+        <input type="text" name="password-signup" /> 
+        <input type="submit" /> 
+    </form>
+    <form method="POST" action="/signin"> 
+        <label>Signin</label>
+        <input type="text" name="username-signin" /> 
+        <input type="text" name="password-signin" /> 
+        <input type="submit" /> 
+    </form>
     <div id="nickname-container"></div>
     <div id="who-is-online"></div>
     <ul id="messages"></ul>
-    <form action="">
+    <form action="" id="dashboard-form">
         <input id="nickname" placeholder="nickname" /> 
         <input id="message-content" autocomplete="off" /><button>Send</button>
     </form>
@@ -23,7 +35,7 @@
             }); 
         })); 
 
-        document.querySelector("form").addEventListener("keyup", e => { 
+        document.querySelector("#dashboard-form").addEventListener("keyup", e => { 
             socket.emit("user is typing", document.querySelector('#nickname').value);
         }); 
 
@@ -42,7 +54,7 @@
             }); 
         }); 
 
-        document.querySelector("form").addEventListener("submit", e => {
+        document.querySelector("#dashboard-form").addEventListener("submit", e => {
             e.preventDefault(); 
             if (document.querySelector('#nickname').value != "") { 
                 socket.emit('nickname', document.querySelector('#nickname').value);

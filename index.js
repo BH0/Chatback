@@ -2,6 +2,9 @@ let app = require("express")();
 let http = require("http").Server(app); 
 let io = require("socket.io")(http); 
 const mysql = require("mysql"); 
+let bodyParser = require("body-parser"); 
+
+let urlencodedParser = bodyParser.urlencoded({extended: false }); 
 
 const db = mysql.createConnection({
     host: "db4free.net", 
@@ -32,8 +35,32 @@ app.get("/api/group-chat", (req, res) => {
         result.forEach(row => {
             messages.push({nickname: row.author, content: row.content});  
         }); 
-        console.log(messages); 
+        // console.log(messages); 
         res.send(JSON.stringify(messages)); 
+    }); 
+}); 
+
+app.post("/signup", urlencodedParser, (req, res) => { 
+    // check user does not already exist before saving to the database 
+    let user = { 
+        username: req.body["username-signup"],  // nickname will be replaced with username 
+        password: req.body["password-signup"]
+        // online: true 
+    }    
+    let sql = "INSERT INTO users SET ?"; 
+    let query = db.query(sql, user, (err, result) => { 
+        console.log(result); 
+        res.redirect("/");     
+    }); 
+}); 
+
+app.post("/signin", urlencodedParser, (req, res) => { 
+    let sql = `SELECT * FROM users WHERE username = '${req.body["username-signin"]}' AND password = '${req.body["password-signin"]}'`; 
+    let query = db.query(sql, (err, user) => { 
+        if (err) console.log(err); 
+        // console.log(user); 
+        // update user's logged in status 
+        res.redirect("/"); 
     }); 
 }); 
 
