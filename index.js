@@ -47,7 +47,8 @@ app.post("/signup", urlencodedParser, (req, res) => {
         password: req.body["password-signup"]
         // online: true 
     }    
-    let sql = "INSERT INTO users SET ?"; 
+    // let sql = "INSERT INTO users SET ?"; 
+    let sql = "INSERT INTO users2 SET ?"; 
     let query = db.query(sql, user, (err, result) => { 
         console.log(result); 
         res.redirect("/");     
@@ -55,7 +56,7 @@ app.post("/signup", urlencodedParser, (req, res) => {
 }); 
 
 app.post("/signin", urlencodedParser, (req, res) => { 
-    let sql = `SELECT * FROM users WHERE username = '${req.body["username-signin"]}' AND password = '${req.body["password-signin"]}'`; 
+    let sql = `SELECT * FROM users2 WHERE username = '${req.body["username-signin"]}' AND password = '${req.body["password-signin"]}';`; 
     let query = db.query(sql, (err, user) => { 
         if (err) console.log(err); 
         // console.log(user); 
@@ -68,8 +69,18 @@ io.on('connection', socket => {
     socket.on('chat message', msg => {
         io.emit("chat message", `${msg.nickname} says ${msg.content}`); 
         // let sql = "INSERT INTO messages SET ?";
+        //  let sql = `INSERT INTO messages VALUES ('${msg.nickname}', '${msg.content}')`;  
+        // let sql = `INSERT INTO messages2 VALUES ('${msg.nickname}', '${msg.content}');`; // ideally username should be used instead of nickname for author field 
+        /* 
+        let message = { 
+            content: msg.content, 
+            author: msg.nickname
+        }    
+        // let sql = "INSERT INTO users SET ?"; 
+        */ 
         let sql = `INSERT INTO messages VALUES ('${msg.nickname}', '${msg.content}')`;  
-        let query = db.query(sql, msg, (err, result) => { 
+        // let sql = "INSERT INTO messages2 SET ?"; 
+            let query = db.query(sql, (err, result) => { 
             if (err) throw err; 
         }); 
     });
