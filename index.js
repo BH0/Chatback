@@ -1,4 +1,5 @@
-let app = require("express")(); 
+let express = require("express"); 
+let app = express(); 
 let http = require("http").Server(app); 
 let io = require("socket.io")(http); 
 const mysql = require("mysql"); 
@@ -21,6 +22,10 @@ db.connect(err => {
     } 
     console.log("Connected to Mysql!"); 
 }); 
+
+// app.use(bodyParser); 
+app.use(express.json());
+
 
 app.get("/", (req, res) => { 
     res.sendFile(`${__dirname}/index.html`); 
@@ -50,18 +55,62 @@ app.post("/signup", urlencodedParser, (req, res) => {
     // let sql = "INSERT INTO users SET ?"; 
     let sql = "INSERT INTO users2 SET ?"; 
     let query = db.query(sql, user, (err, result) => { 
-        console.log(result); 
+        // console.log(result); 
         res.redirect("/");     
+        // `${__dirname}/index.html` 
     }); 
 }); 
 
+/* 
 app.post("/signin", urlencodedParser, (req, res) => { 
     let sql = `SELECT * FROM users2 WHERE username = '${req.body["username-signin"]}' AND password = '${req.body["password-signin"]}';`; 
     let query = db.query(sql, (err, user) => { 
         if (err) console.log(err); 
         // console.log(user); 
         // update user's logged in status 
-        res.redirect("/"); 
+        res.send(user); 
+        // res.redirect("/"); 
+    }); 
+}); 
+*/ 
+app.post("/signin", urlencodedParser, (req, res) => { 
+    let sql = `SELECT * FROM users2 WHERE username = '${req.body["username"]}' AND password = '${req.body["password"]}';`; 
+    let query = db.query(sql, (err, user) => { 
+        if (err) console.log(err); 
+        // console.log(user); 
+        // update user's logged in status 
+        res.send(user); 
+        // res.redirect("/"); 
+    }); 
+}); 
+
+/* 
+app.get(`/follow-user/:user/:currentUser`, (req, res) => { 
+    // check user is signed in 
+    console.log(req.params); 
+}); 
+*/ 
+
+app.post("/follow-user", urlencodedParser, (req, res) => { 
+    let sql = `SELECT * FROM users2 WHERE users2.username = '${req.body["username"]}' `;
+    let query = db.query(sql, (err, requestedUser) => { 
+        if (err) console.log(err); 
+        // let sql2 = `INSERT INTO following(friendName, userFollowedId, userId) VALUES ('${requestedUser[0].username}', (${requestedUser[0].id}, ${req.body["currentUser"][0].id})`; 
+        // console.log(req.body["currentUser"][0].id); 
+        let sql2 = `INSERT INTO following(friendName, userFollowedId, userId) VALUES ('${requestedUser[0].username}', ${requestedUser[0].id}, ${req.body["currentUser"][0].id})`; 
+        let query2 = db.query(sql2, (err, result) => { 
+            if (err) throw err; 
+            // console.log(result); 
+        });
+    }); 
+}); 
+
+app.get("/user-friends/:currentUserId", (req, res) => { 
+    let sql = `SELECT * FROM following where following.userId = ${req.params.currentUserId}`; 
+    // console.log(req.params.currentUserId); 
+    let query = db.query(sql, (err, userFriends) => { 
+        if (err) console.log(err); 
+        res.send(userFriends); 
     }); 
 }); 
 

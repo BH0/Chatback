@@ -10,11 +10,15 @@
         <input type="text" name="password-signup" /> 
         <input type="submit" /> 
     </form>
-    <form method="POST" action="/signin"> 
+    <form action="" id="signin-form"> 
         <label>Signin</label>
-        <input type="text" name="username-signin" /> 
-        <input type="text" name="password-signin" /> 
+        <input type="text" name="username-signin" id="username-signin" /> 
+        <input type="text" name="password-signin" id="password-signin" /> 
         <input type="submit" /> 
+    </form>
+    <div id="following-list"></div>
+    <form action="" id="follow-user-form" >
+        <input type="text" id="user-to-follow" placeholder="user's username" /> 
     </form>
     <div id="nickname-container"></div>
     <div id="who-is-online"></div>
@@ -28,6 +32,7 @@
     <script>
     window.onload = () => {
         let socket = io();
+        let currentUser; 
 
         fetch("/api/group-chat").then(res => res.json().then(messages => { 
             messages.forEach(message => { 
@@ -50,9 +55,46 @@
             console.log(userNicknames); 
             document.querySelector("#who-is-online").innerHTML = ""; 
             userNicknames.forEach(user => { 
-                document.querySelector("#who-is-online").innerHTML += `<div><a href="#">${user}</a></div>`;
+                document.querySelector("#who-is-online").innerHTML += `<div><a href="/follow-user/${user}/${currentUser}">${user}</a></div>`;
             }); 
         }); 
+
+        document.querySelector("#signin-form").addEventListener("submit", e => { 
+            e.preventDefault(); 
+            fetch("/signin", { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    username: document.querySelector("#username-signin").value, 
+                    password: document.querySelector("#password-signin").value
+                }), 
+                headers: { 
+                    "Content-type": "application/json"
+                } 
+                }).then(res => res.json()).then(json => { 
+                    currentUser = json; 
+                    // console.log(currentUser[0].id) 
+                    fetch(`/user-friends/${currentUser[0].id}`).then(res => res.json().then(data => {
+                        data.forEach(friend => { 
+                            document.querySelector("#following-list").innerHTML += `Following<div><b>${friend.friendName}</b></div>`; 
+                        }); 
+                    })); 
+                }); 
+            }); 
+
+        document.querySelector("#follow-user-form").addEventListener("submit", e => { 
+            e.preventDefault(); 
+            console.log(currentUser); 
+            fetch("/follow-user", { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    username: document.querySelector("#user-to-follow").value, 
+                    currentUser: currentUser
+                }), 
+                headers: { 
+                    "Content-type": "application/json"
+                } 
+                }).catch(err => console.log(err)); 
+            }); 
 
         document.querySelector("#dashboard-form").addEventListener("submit", e => {
             e.preventDefault(); 
