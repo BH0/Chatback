@@ -10,6 +10,11 @@
     <form action="">
         <input id="nickname" placeholder="nickname" /> 
         <input id="message-content" autocomplete="off" /><button>Send</button>
+        <div class="emojis">
+            <span>❤</span>
+            <span>😢</span>
+            <span>😊</span>
+        </div>
     </form>
     <p id="who-is-typing"></p>
     <script src="/socket.io/socket.io.js"></script>
@@ -22,6 +27,12 @@
                 document.querySelector("#messages").innerHTML += `<li>${message.nickname} says ${message.content}</li>`; 
             }); 
         })); 
+
+        document.querySelector(".emojis").querySelectorAll("span").forEach(emoji => {
+            emoji.addEventListener("click", emoji_e => {
+                document.querySelector('#message-content').value += emoji_e.target.innerText;                
+            });     
+        });     
 
         document.querySelector("form").addEventListener("keyup", e => { 
             socket.emit("user is typing", document.querySelector('#nickname').value);
